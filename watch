@@ -1,0 +1,24 @@
+<?php
+
+// Format and check args
+@[$_, $src, $dst] = $_SERVER['argv'];
+
+if (!$src || !$dst)
+    return terminate('Usage: php watch <source> <destination>');
+
+// Check source file and load it
+if (!is_file($src))
+    return terminate('Soruce file doesn\'t exist!');
+
+$last_contents = null;
+
+while (true)
+{
+    // If file has changed, recompile
+    if ($last_contents != file_get_contents($src))
+    {
+        print exec("php compile $src $dst") . PHP_EOL;
+        $last_contents = file_get_contents($src);
+    }
+    sleep(1);
+}
