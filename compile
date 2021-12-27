@@ -21,6 +21,7 @@ $paragraphs = [];
 // Create variables for current type's ids
 $head = 0;
 $section = 0;
+$paragraph = 0;
 
 // Create tree array and output string
 $tree = [];
@@ -61,20 +62,31 @@ foreach (explode(PHP_EOL, $input) as $line)
     if (preg_match('/^\s*(\d+):(.+)/i', $line))
     {
         // Match paragraph's defined position and the paragraph itself 
-        $x = preg_replace_callback('/^\s*(\d+):(.+)/i', function ($matches) use ($head, $section, &$paragraphs, &$tree) {
+        $x = preg_replace_callback('/^\s*(\d+):(.+)/i', function ($matches) use ($head, $section, &$paragraph, &$paragraphs, &$tree) {
             // Unroll matches array
-            [$_, $position, $paragraph] = $matches;
+            [$_, $position, $content] = $matches;
             
             // Trim the paragraph
-            $paragraph = trim($paragraph);
+            $content = trim($content);
+            
+            // Set current paragraph id to it's position
+            $paragraph = count($tree[$head][$section]);
             
             // Add current paragraph to paragraphs array
-            $paragraphs[$position] = $paragraph;
+            $paragraphs[$position] = $content;
             
             // Add current paragraph to tree
-            $tree[$head][$section][] = $paragraph;
+            $tree[$head][$section][] = $content;
         }, $line);
         continue;
+    }
+    
+    // New line of paragraph
+    if (trim($line))
+    {
+        $paragraphs[$paragraph] .= PHP_EOL . $line;
+        $tree[$head][$section][$paragraph] .= PHP_EOL . $line;
+        print $paragraph . PHP_EOL;
     }
 }
 
