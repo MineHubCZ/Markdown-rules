@@ -3,10 +3,10 @@
 <?php
 
 // Format and check args
-@[$_, $src, $dst] = $_SERVER['argv'];
+@[$_, $src, $dst, $opt] = $_SERVER['argv'];
 
-if (!$src)
-    return terminate('Usage: php compile <source> [destination]');
+if (!$src || !$dst)
+    return terminate(['Usage: php compile <source> <destination> [options]', '', 'Options:', ' d - shows defined paragraph number']);
 
 // Check source file and load it
 if (!is_file($src))
@@ -62,12 +62,16 @@ foreach (explode(PHP_EOL, $input) as $line)
     if (preg_match('/^\s*(\d+):(.+)/i', $line))
     {
         // Match paragraph's defined position and the paragraph itself 
-        $x = preg_replace_callback('/^\s*(\d+):(.+)/i', function ($matches) use ($head, $section, &$paragraph, &$paragraphs, &$tree) {
+        $x = preg_replace_callback('/^\s*(\d+):(.+)/i', function ($matches) use ($head, $section, &$paragraph, &$paragraphs, &$tree, $opt) {
             // Unroll matches array
             [$_, $position, $content] = $matches;
             
             // Trim the paragraph
             $content = trim($content);
+            
+            // If debug is on, add defined position to paragraph content
+            if (str_contains($opt, 'd'))
+                $content = "[$position] " . $content;
             
             // Set current paragraph id to it's position
             $paragraph = count($tree[$head][$section]);
@@ -148,10 +152,6 @@ foreach ($tree as $head_id => $head_sections)
     $last = 0;
 }
 
-// If output file isn't set, print out the output
-if (!$dst)
-    return print $output;
-
 // Save output to the designated file
 file_put_contents($dst, $output);
 return terminate('Rules file has been exported successfully!');
@@ -161,11 +161,13 @@ return terminate('Rules file has been exported successfully!');
 /**
  * Prints formatted exit message.
  *
- * @param string $message
+ * @param string|string[] $message
  * @return string
  */
-function terminate(string $message)
+function terminate($message)
 {
+    if (is_array($message))
+        $message = implode(PHP_EOL, $message);
     return print PHP_EOL . $message . PHP_EOL;
 }
 
