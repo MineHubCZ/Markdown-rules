@@ -84,9 +84,10 @@ foreach (explode(PHP_EOL, $input) as $line)
     // New line of paragraph
     if (trim($line))
     {
-        $paragraphs[$paragraph] .= PHP_EOL . $line;
-        $tree[$head][$section][$paragraph] .= PHP_EOL . $line;
-        print $paragraph . PHP_EOL;
+        // If the line is not ordered list, output two new lines.
+        $space = PHP_EOL . (preg_match('/\d\./', $line) ? null : PHP_EOL);
+        $paragraphs[$paragraph] .= $space . $line;
+        $tree[$head][$section][$paragraph] .= $space . $line;
     }
 }
 
