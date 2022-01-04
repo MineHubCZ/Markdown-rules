@@ -31,7 +31,7 @@ $output = '';
 foreach (explode(PHP_EOL, $input) as $line)
 {
     // Head
-    if (str_contains($line, '#'))
+    if (str_contains(str_replace('\\#', '', $line), '#'))
     {
         // Set current head id
         $head = count($heads);
@@ -45,7 +45,7 @@ foreach (explode(PHP_EOL, $input) as $line)
     }
 
     // Section
-    if (str_contains($line, '§'))
+    if (str_contains(str_replace('\\§', '', $line), '§'))
     {
         // Set current section id
         $section = count($sections);
