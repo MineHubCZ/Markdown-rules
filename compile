@@ -154,7 +154,7 @@ foreach ($tree as $head_id => $head_sections)
 
 // Save output to the designated file
 file_put_contents($dst, $output);
-return terminate('Rules file has been exported successfully!');
+return terminate('Rules file has been exported successfully! Last paragraph position: ' . count($paragraphs) + 1);
 
 // ------------ Functions ------------
 
